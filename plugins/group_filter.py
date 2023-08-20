@@ -5,7 +5,7 @@ from utils import get_shortlink
 import pyrogram
 from database.connections_mdb import active_connection, all_connections, delete_connection, if_active, make_active, make_inactive
 from info import ADMINS, AUTH_CHANNEL, AUTH_USERS, CUSTOM_FILE_CAPTION, AUTH_GROUPS, P_TTI_SHOW_OFF, IMDB, PM_IMDB, SINGLE_BUTTON, PROTECT_CONTENT, \
-    SPELL_CHECK_REPLY, IMDB_TEMPLATE, IMDB_DELET_TIME, START_MESSAGE, PMFILTER, G_FILTER, BUTTON_LOCK, BUTTON_LOCK_TEXT, SHORT_URL, SHORT_API
+    SPELL_CHECK_REPLY, IMDB_TEMPLATE, IMDB_DELET_TIME, START_MESSAGE, PMFILTER, G_FILTER, BUTTON_LOCK, BUTTON_LOCK_TEXT, SHORT_URL, SHORT_API, SELF_DELETE, SELF_DELETE_SECONDS
 
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram import Client, filters, enums 
@@ -372,38 +372,52 @@ async def manual_filters(client, message, text=False):
                 try:
                     if fileid == "None":
                         if btn == "[]":
-                            await client.send_message(group_id, reply_text, disable_web_page_preview=True, reply_to_message_id=reply_id)
+                            hehe = await client.send_message(
+                                group_id,
+                                reply_text, 
+                                disable_web_page_preview=True,
+                                reply_to_message_id=reply_id)
+                            if SELF_DELETE:
+                                await asyncio.sleep(SELF_DELETE_SECONDS)
+                                await hehe.delete()       
                         else:
                             button = eval(btn)
-                            await client.send_message(
+                            hmm = await client.send_message(
                                 group_id,
                                 reply_text,
                                 disable_web_page_preview=True,
                                 reply_markup=InlineKeyboardMarkup(button),
                                 reply_to_message_id=reply_id
                             )
+                            if SELF_DELETE:
+                                await asyncio.sleep(SELF_DELETE_SECONDS)
+                                await hmm.delete()
                     elif btn == "[]":
-                        await client.send_cached_media(
+                        fuk = await client.send_cached_media(
                             group_id,
                             fileid,
                             caption=reply_text or "",
                             reply_to_message_id=reply_id
                         )
+                        if SELF_DELETE:
+                            await asyncio.sleep(SELF_DELETE_SECONDS)
+                            await fuk.delete()
                     else:
                         button = eval(btn)
-                        await message.reply_cached_media(
+                        fek = await message.reply_cached_media(
                             fileid,
                             caption=reply_text or "",
                             reply_markup=InlineKeyboardMarkup(button),
                             reply_to_message_id=reply_id
                         )
+                        if SELF_DELETE:
+                            await asyncio.sleep(SELF_DELETE_SECONDS)
+                            await fek.delete()
                 except Exception as e:
                     logger.exception(e)
                 break
     else:
         return False
-
-
 
 async def global_filters(client, message, text=False):
     group_id = message.chat.id
